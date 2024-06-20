@@ -47,3 +47,30 @@ My Movie Rater webserver API is designed to Address the following problems.
 5. Requests
 
 - The request library will be used for making HTTP requests and routing them to the appropriate view functions.
+
+# Features, Purpose and Function of ORM in Application
+
+## Features: 
+
+1. Declaritive Mapping
+
+- SQLAlchemy will allow the developer the ability to define the models within the database using python classes. These classes will map out the database entities and their attributes within tables and columns.
+
+2. Automated Table Creation
+
+- Depending on the models defined SQLAlchemy will be able to automcatically create database tables.
+
+3. Relationship Handling
+
+- The application will support defining relationships between tables through the use of FK and PKs (foreign/Primary keys) aswell as providing utilities to handle the related Data.
+
+4. Session Management
+- SQLAlchemy provide sthe ability to manage the session so that transactions are handled correctly and also that changes in the database stick.
+
+# Benefits and Drawbacks
+
+The benefits of this application is through the use of blueprints making the project larger will be easier, aswell as being easier to scale the project will remain easy to manage due to the sepration of specific parts of the application. 
+
+Security through the use of hashing passwords using bcrypt will allow the application to enhance the security of sensitive user information.
+
+Through the use of flask-login, users sessions will be stored for the user logged in which will improve the management system and experience
