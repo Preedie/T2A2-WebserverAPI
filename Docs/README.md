@@ -21,3 +21,7 @@ My Movie Rater webserver API is designed to Address the following problems.
 - Problem: The Users will need an easy way to manage their reviews which will allow them to post, view and even changed/efit their submissions.
 
 - Solutions: The application will include ways for the user to manage their reviews easily.
+
+# Movie Rater ERD
+
+![ERD Diagram](/Docs/Pics-files/WebServerAPI.drawio.pdf)
