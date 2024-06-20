@@ -44,3 +44,6 @@ My Movie Rater webserver API is designed to Address the following problems.
 
 - Flask_login manages the users sessions through handling the users authentication and keeping track of the logged in user. It helps with the logging in of users aswell as logging them out and resitricting access to certain information dependant on the authenticated user.
 
+5. Requests
+
+- The request library will be used for making HTTP requests and routing them to the appropriate view functions.
