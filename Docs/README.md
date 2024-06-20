@@ -1,6 +1,6 @@
 # Webserver API Assignment
 
-## Problem Being Solved:
+# Problem Being Solved:
 
 My Movie Rater webserver API is designed to Address the following problems.
 
@@ -24,4 +24,23 @@ My Movie Rater webserver API is designed to Address the following problems.
 
 # Movie Rater ERD
 
-![ERD Diagram](/Docs/Pics-files/WebServerAPI.drawio.pdf)
+- [Movie Rater PDF ERD Diagram](/Docs/Pics-files/WebServerAPI.drawio.pdf)
+
+# Packages and Dependancies 
+
+1. Flask
+
+- Flask is the main web framework used to build the web application. It will provide the tools to route the URLs to a specfic pyton functions, handle requests and also return responses.
+
+2. Flask SQLAlchemy
+
+- Flask SQLalchemy integrates with Flask allowing the application to use the database in a more Pythonic way. It will alllow or better provide ORM (object relational Mapping) making it easier to work with databases by mapping python classes to database tables.
+
+3. Flask_bcrypt
+
+- Brcyrpt will provide the application with the ability to hash passwords which is important in storing the password securely so outside attackers have a hard time cracking them if the database itself is hacked.
+
+4. Flask_login
+
+- Flask_login manages the users sessions through handling the users authentication and keeping track of the logged in user. It helps with the logging in of users aswell as logging them out and resitricting access to certain information dependant on the authenticated user.
+
