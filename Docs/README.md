@@ -69,8 +69,8 @@ My Movie Rater webserver API is designed to Address the following problems.
 
 # Benefits and Drawbacks
 
-The benefits of this application is through the use of blueprints making the project larger will be easier, aswell as being easier to scale the project will remain easy to manage due to the sepration of specific parts of the application. 
+The benefits of this application is through the use of blueprints/models making the project larger will be easier, aswell as being easier to scale. The project will remain easy to manage due to the sepration of specific parts of the application aswell
 
-Security through the use of hashing passwords using bcrypt will allow the application to enhance the security of sensitive user information.
+Security through the use of hashing passwords using bcrypt will allow the application to enhance the security of sensitive user information. Using JWT tokens will add another layer of secrutiy through requiring the user to authenticate/Authorize a token to access the information on the database specific to them.
 
 Through the use of flask-login, users sessions will be stored for the user logged in which will improve the management system and experience
