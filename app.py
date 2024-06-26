@@ -8,7 +8,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 # config for JWT and Alchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = ''
+app.config['SQLALCHEMY_DATABASE_URI'] = 'http://localhost:5432'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = ''
 
@@ -61,6 +61,53 @@ class Movie(db.Model):
     description = db.Column(db.Text)
     release_date = db.Column(db.Date)
     rating = db.Column(db.Float)
+
+#Defining movie review model
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    review = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('reviews'))
+    movie = db.relationship('Movie', backref=db.backref('reviews'))
+
+# Route to add a new review
+@app.route('/movies/<int:movie_id>/reviews', methods=['POST'])
+@jwt_required()
+def add_review(movie_id):
+    data = request.get_json()
+    rating = data.get('rating')
+    review = data.get('review')
+    user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=user_identity['username']).first()
+
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    new_review = Review(user_id=user.id, movie_id=movie_id, rating=rating, review=review)
+    db.session.add(new_review)
+    db.session.commit()
+    
+    return jsonify({'message': 'Review added successfully'}), 201
+
+# Route to get reviews for a movie
+@app.route('/movies/<int:movie_id>/reviews', methods=['GET'])
+def get_reviews(movie_id):
+    reviews = Review.query.filter_by(movie_id=movie_id).all()
+    result = []
+    for review in reviews:
+        result.append({
+            'id': review.id,
+            'user_id': review.user_id,
+            'movie_id': review.movie_id,
+            'rating': review.rating,
+            'review': review.review,
+            'timestamp': review.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    return jsonify(result)
 
 # Route to get all movies
 @app.route('/movies', methods=['GET'])
