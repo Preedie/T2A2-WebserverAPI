@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 
@@ -8,7 +8,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 # config for JWT and Alchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'http://localhost:5432'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://Postgres:Mikaere29@localhost:5000/movie_rater_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = ''
 
@@ -16,6 +16,47 @@ app.config['JWT_SECRET_KEY'] = ''
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
+
+# User Info
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(15), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(60), nullable=False)
+    role = db.Column(db.String(10), nullable=False, default='user')
+
+    def __init__(self, username, email, password, role='user'):
+        self.username = username
+        self.email = email
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.role = role
+        
+# Admin user role route
+def admin_required(fn):
+    @jwt_required()
+    def require_admin_role(*args, **kwargs):
+        user_identity = get_jwt_identity()
+        user = User.query.filter_by(username=user_identity['username']).first()
+        if user.role != 'admin':
+            return jsonify({'message': 'Admin access required'}), 403
+        return fn(*args, **kwargs)
+    return require_admin_role
+
+# Route to create a new user
+@app.route('/create_user', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    role = data.get('role', 'user')  # Default role is 'user'
+
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_user = User(username=username, email=email, password=hashed_password, role=role)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({'message': 'User created successfully'})
 
 # Route to login an existing user
 @app.route('/login', methods=['POST'])
@@ -27,32 +68,10 @@ def login():
     user = User.query.filter_by(username=username).first()
 
     if user and bcrypt.check_password_hash(user.password, password):
-        access_token = create_access_token(identity={'username': username, 'email': user.email})
-        return jsonify({'access_token': access_token}), 200
+        token = create_access_token(identity={'username': username, 'email': user.email})
+        return jsonify({'access_token': token}), 200
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
-
-# User Info
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(15), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-
-# Route to create a new user
-@app.route('/create_user', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
-
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(username=username, email=email, password=hashed_password)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({'message': 'User created successfully'})
 
 # Define Movie model
 class Movie(db.Model):
@@ -62,7 +81,15 @@ class Movie(db.Model):
     release_date = db.Column(db.Date)
     rating = db.Column(db.Float)
 
-#Defining movie review model
+    @property
+    def average_rating(self):
+        reviews = Review.query.filter_by(movie_id=self.id).all()
+        if not reviews:
+            return None
+        total_rating = sum(review.rating for review in reviews)
+        return total_rating / len(reviews)
+
+# Defining movie review model
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -120,13 +147,14 @@ def get_movies():
             'title': movie.title,
             'description': movie.description,
             'release_date': movie.release_date.strftime('%Y-%m-%d') if movie.release_date else None,
-            'rating': movie.rating
+            'rating': movie.rating,
+            'average_rating': movie.average_rating
         })
     return jsonify(result)
 
 # Route to add a new movie
 @app.route('/movies', methods=['POST'])
-@jwt_required()
+@admin_required
 def add_movie():
     data = request.get_json()
     title = data.get('title')
