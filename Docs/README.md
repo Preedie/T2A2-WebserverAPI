@@ -65,12 +65,32 @@ My Movie Rater webserver API is designed to Address the following problems.
 - The application will support defining relationships between tables through the use of FK and PKs (foreign/Primary keys) aswell as providing utilities to handle the related Data.
 
 4. Session Management
+
 - SQLAlchemy provide sthe ability to manage the session so that transactions are handled correctly and also that changes in the database stick.
 
 # Benefits and Drawbacks
 
-The benefits of this application is through the use of blueprints/models making the project larger will be easier, aswell as being easier to scale. The project will remain easy to manage due to the sepration of specific parts of the application aswell
+## Benefits
 
-Security through the use of hashing passwords using bcrypt will allow the application to enhance the security of sensitive user information. Using JWT tokens will add another layer of secrutiy through requiring the user to authenticate/Authorize a token to access the information on the database specific to them.
+Through using PostgreSQL the ability to do complex queries with it will make for advanced data retrieval which can be useful when ttrying to for ecxample, calculating the average rating of movies or searching/fetching user specfic reviews.
 
-Through the use of flask-login, users sessions will be stored for the user logged in which will improve the management system and experience
+The integrity of the data will be maintained through ACID which should/will ensure all communications/transactions are handled reliably. Which is crucial for maintaining the integrity of the users information, movies, reviews and ratings.
+
+As the movie rater database increases in size postgreSQL is properly equipped to effectievly deal with larger loads and datasets effeciently, which ensures scalability and performance of the application
+
+Through user authentication and authorization the application will ensure secure access for users awell as allowing for roles to be set to further increase security and usablility. Having a role will allow an admin to set permissions aswell as perform actions to moderate the application (in a sense)
+
+Through the use of the review model users will be able to provide valuable feedback about movies aswell as feedback and engagement. All this will also foster community driven content which can directly enrich and improve the user experience.
+
+The application is built with the API First approach in mind, this will allow the application to be implemeneted in various front end clients, mobile applications or thirdparty services
+
+## Drawbacks
+
+Setting up the JWT and flask extensions for the application can be extensive and time consuming. Regular maintenance sush as database backups and updates also add to the complexity of the program.
+
+Due to using postgres for handling user authentication the resource useage can be quite high and may not be suitable for limited hardware or cloud storage enviroments that are small in nature/use constrained resources.
+
+The application in its "launch" form is very limited in what it can achieve outside of the afformentioned, reviews, rating, user storage. 
+
+Using flaskAlchemy aswell as bcrypt and jwt creates a challenge for the developer/s to ensure all the dependancies are kept up to date and current, otherwise the application will not function properly if atall. This can be problematic for obvious reasons but maintaining the applications extensions and updates could prove long and tedious.
+

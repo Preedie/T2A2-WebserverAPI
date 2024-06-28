@@ -4,13 +4,13 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token, ge
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 
-# initialize application
+# Initialize the application
 app = Flask(__name__)
 
-# config for JWT and Alchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://Postgres:Mikaere29@localhost:5000/movie_rater_db'
+# Configuration for JWT and SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = 'http://127.0.0.1:5000'  
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = ''
+app.config['JWT_SECRET_KEY'] = ''  
 
 # Initialization of extensions
 db = SQLAlchemy(app)
@@ -30,17 +30,18 @@ class User(db.Model):
         self.email = email
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.role = role
-        
+
 # Admin user role route
 def admin_required(fn):
     @jwt_required()
-    def require_admin_role(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         user_identity = get_jwt_identity()
         user = User.query.filter_by(username=user_identity['username']).first()
         if user.role != 'admin':
             return jsonify({'message': 'Admin access required'}), 403
         return fn(*args, **kwargs)
-    return require_admin_role
+    wrapper.__name__ = fn.__name__  # This is needed to ensure Flask can map the route correctly
+    return wrapper
 
 # Route to create a new user
 @app.route('/create_user', methods=['POST'])
@@ -89,7 +90,7 @@ class Movie(db.Model):
         total_rating = sum(review.rating for review in reviews)
         return total_rating / len(reviews)
 
-# Defining movie review model
+# Define Review model
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
