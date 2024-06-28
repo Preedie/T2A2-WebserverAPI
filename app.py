@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Configuration for JWT and SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'http://127.0.0.1:5000'  
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = ''  
+app.config['JWT_SECRET_KEY'] = '1234567'  
 
 # Initialization of extensions
 db = SQLAlchemy(app)
@@ -47,24 +47,41 @@ def admin_required(fn):
 @app.route('/create_user', methods=['POST'])
 def create_user():
     data = request.get_json()
+    if not data:
+        return jsonify({'message': 'No input data provided'}), 400
+
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
     role = data.get('role', 'user')  # Default role is 'user'
 
+    if not username or not email or not password:
+        return jsonify({'message': 'Username, email, and password are required'}), 400
+
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     new_user = User(username=username, email=email, password=hashed_password, role=role)
-    db.session.add(new_user)
-    db.session.commit()
+    
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Error creating user', 'error': str(e)}), 500
 
-    return jsonify({'message': 'User created successfully'})
+    return jsonify({'message': 'User created successfully'}), 201
 
 # Route to login an existing user
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+    if not data:
+        return jsonify({'message': 'No input data provided'}), 400
+
     username = data.get('username')
     password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'message': 'Username and password are required'}), 400
 
     user = User.query.filter_by(username=username).first()
 
@@ -107,6 +124,9 @@ class Review(db.Model):
 @jwt_required()
 def add_review(movie_id):
     data = request.get_json()
+    if not data:
+        return jsonify({'message': 'No input data provided'}), 400
+
     rating = data.get('rating')
     review = data.get('review')
     user_identity = get_jwt_identity()
@@ -115,9 +135,16 @@ def add_review(movie_id):
     if not user:
         return jsonify({'message': 'User not found'}), 404
 
+    if not rating:
+        return jsonify({'message': 'Rating is required'}), 400
+
     new_review = Review(user_id=user.id, movie_id=movie_id, rating=rating, review=review)
-    db.session.add(new_review)
-    db.session.commit()
+    try:
+        db.session.add(new_review)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Error adding review', 'error': str(e)}), 500
     
     return jsonify({'message': 'Review added successfully'}), 201
 
@@ -135,7 +162,7 @@ def get_reviews(movie_id):
             'review': review.review,
             'timestamp': review.timestamp.strftime('%Y-%m-%d %H:%M:%S')
         })
-    return jsonify(result)
+    return jsonify(result), 200
 
 # Route to get all movies
 @app.route('/movies', methods=['GET'])
@@ -151,24 +178,44 @@ def get_movies():
             'rating': movie.rating,
             'average_rating': movie.average_rating
         })
-    return jsonify(result)
+    return jsonify(result), 200
 
 # Route to add a new movie
 @app.route('/movies', methods=['POST'])
 @admin_required
 def add_movie():
     data = request.get_json()
+    if not data:
+        return jsonify({'message': 'No input data provided'}), 400
+
     title = data.get('title')
     description = data.get('description')
     release_date_str = data.get('release_date')
     release_date = datetime.strptime(release_date_str, '%Y-%m-%d').date() if release_date_str else None
     rating = data.get('rating')
 
+    if not title:
+        return jsonify({'message': 'Title is required'}), 400
+
     new_movie = Movie(title=title, description=description, release_date=release_date, rating=rating)
-    db.session.add(new_movie)
-    db.session.commit()
+    
+    try:
+        db.session.add(new_movie)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Error adding movie', 'error': str(e)}), 500
     
     return jsonify({'message': 'Movie added successfully'}), 201
+
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'message': 'Resource not found'}), 404
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify({'message': 'An internal error occurred'}), 500
 
 if __name__ == '__main__':
     with app.app_context():
