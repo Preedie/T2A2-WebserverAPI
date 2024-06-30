@@ -48,6 +48,9 @@ My Movie Rater webserver API is designed to Address the following problems.
 
 - The request library will be used for making HTTP requests and routing them to the appropriate view functions.
 
+6. JWT Token
+- This will allow for the user to be given a secure token that will authorize them to use the application, this stops any melicious intent users to post reviews or rating bomb movies saved in the database through requiring the JWT token which is generated upon registering (creating) a new user.
+
 # Features, Purpose and Function of ORM in Application
 
 ## Features: 
@@ -93,4 +96,186 @@ Due to using postgres for handling user authentication the resource useage can b
 The application in its "launch" form is very limited in what it can achieve outside of the afformentioned, reviews, rating, user storage. 
 
 Using flaskAlchemy aswell as bcrypt and jwt creates a challenge for the developer/s to ensure all the dependancies are kept up to date and current, otherwise the application will not function properly if atall. This can be problematic for obvious reasons but maintaining the applications extensions and updates could prove long and tedious.
+
+# How To
+
+To use the API endpoints of this application start the application in vscode then enter the below command in the terminal.
+Ensure all dependencies are installed
+If using a Virtual Enviroment ensure it is enabled before running flask
+
+```
+flask run
+```
+
+This will ensure the application is connected via port.
+
+Next open Bruno and start a new collection.
+copy and paste the URI of the application that pops up when you recieve the host ip and port number from running 'flask run' and begin to create the post and get requests as follows.
+
+1. Create User
+
+- create post request called create user
+- specify the path eg "http://127.0.0.1:5000/create_user"
+- Next enter the following code snippet in json form in the body.
+- testing some of the requests will require you to be an admin as they are JWT and admin only protected, meaning you will need authorization.
+
+```json
+{
+  "username": "yourusername",
+  "email": "youremail@hellothere.com",
+  "password": "youshallnotpassword",
+  "role": "admin" (optional, default is "user")
+}
+```
+the response should look something like
+
+```json
+{
+  "message": "User created successfully"
+}
+```
+if it fails you will recieve.
+
+```json
+{
+  "message": "Error message",
+  "error": "Detailed error message" (only for 500 errors)
+}
+```
+The terminal will prompt you with a more detailed error message that will help you debug what went wrong if required.
+
+2. Login a User
+
+- create post request called Login
+- specify the path eg "http://127.0.0.1:5000/login"
+- Next enter the following code snippet in json form in the body.
+
+```json
+{
+  "username": "yourusername",
+  "password": "youshallnotpassword"
+}
+```
+
+the response if successful will be a JWT bearer token that will be useful for other requests later, so remember where it is (it may expire by the time you come back to collect it but dont worry, you can just request another via sending a post request to login again.)
+
+```json
+{
+  "access_token": "JWT token"
+}
+```
+
+If the request fails a 400 or 401 error message will return.
+
+```json
+{
+  "message": "Error message"
+}
+```
+
+More information on the errors details can be found in the terminal (or the raw data return on Bruno)
+
+
+3. Add Movie (admin only)
+
+- create post request called Add Movie
+- specify the path eg "http://127.0.0.1:5000/movies"
+- This will require a JWT bearers token
+- go to the headers tab create a new header and type Authorization (a selector should pop up to make it quicker)
+- next in the tab over write Bearer (paste JWT token here, next to it space included)
+- You can copy and paste your login response token in the field next to where you made the header "Authorization". (follow the jwt bearer token paste method for all routes that require JWT)
+- Next enter the following code snippet in json form in the 
+
+```json
+{
+  "title": "STR",
+  "description": "STR" (optional),
+  "release_date": "YYYY-MM-DD" (optional),
+  "rating": "float" (optional)
+}
+```
+Response if done correctly will be
+
+```json
+{
+  "message": "Movie added successfully"
+}
+```
+
+If it fails this message will return, check the terminal or raw for more info.
+
+```json
+{
+  "message": "Error message",
+  "error": "Detailed error message" (only for 500 errors)
+}
+```
+
+4. Add a Review
+
+- create post request called add review
+- specify the path eg "http://127.0.0.1:5000/(int:movie_id)/reviews"
+- This will require a JWT bearers token
+
+```json
+{
+  "rating": "INT",
+  "review": "STR" (Not required)
+}
+```
+The response if done correctly will be, with a (201) 
+
+```json
+{
+  "message": "Review added successfully"
+}
+```
+5. Get Movies
+
+- create GET request called Get Movie
+- specify the path eg "http://127.0.0.1:5000/movies"
+- write the following snippet in the body as json entering the information of the movie desired.
+
+```json
+[
+  {
+    "id": "integer",
+    "title": "string",
+    "description": "string",
+    "release_date": "YYYY-MM-DD",
+    "rating": "float",
+    "average_rating": "float or null"
+  },
+]
+```
+6. Get Reviews for a Movie
+
+- create GET request called Get Reviews
+- specify the path eg "http://127.0.0.1:5000/movies/(enter movie_id here)/reviews"
+- the following code snippet is the response from sending the GET request
+
+
+A success 200: 
+```json
+[
+  {
+    "id": "INT",
+    "user_id": "STR",
+    "movie_id": "INT",
+    "rating": "INT",
+    "review": "STR",
+    "timestamp": "YYYY-MM-DD HH:MM:SS"
+  },
+]
+```
+If the request fails a 404 will return
+
+```json
+{
+  "message": "Error message"
+}
+```
+Consult terminal or raw data for more information.
+
+
 

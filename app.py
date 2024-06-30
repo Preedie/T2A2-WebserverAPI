@@ -32,13 +32,16 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-# Admin user role route
+# Admin user role route decorator
 def admin_required(fn):
     @wraps(fn)
     @jwt_required() 
     def wrapper(*args, **kwargs):
+        # Get user identity from JWT token
         user_identity = get_jwt_identity()
+        # Search the database for the user
         user = User.query.filter_by(username=user_identity).first()
+        # Check if user has 'admin' role
         if user.role != 'admin':
             return jsonify({'message': 'Admin access required'}), 403
         return fn(*args, **kwargs)
@@ -47,6 +50,7 @@ def admin_required(fn):
 # Route to create a new user
 @app.route('/create_user', methods=['POST'])
 def create_user():
+    # Get request data
     data = request.get_json()
     if not data:
         return jsonify({'message': 'No input data provided'}), 400
@@ -59,10 +63,12 @@ def create_user():
     if not username or not email or not password:
         return jsonify({'message': 'Username, email, and password are required'}), 400
 
+    # Hash the user's password for security layer
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     new_user = User(username=username, email=email, password=hashed_password, role=role)
 
     try:
+        # Add new user to the database
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'message': 'User created successfully'}), 201
@@ -74,6 +80,7 @@ def create_user():
 # Route to login an existing user
 @app.route('/login', methods=['POST'])
 def login():
+    # Get request data
     data = request.get_json()
     if not data:
         return jsonify({'message': 'No input data provided'}), 400
@@ -84,9 +91,12 @@ def login():
     if not username or not password:
         return jsonify({'message': 'Username and password are required'}), 400
 
+    # search the database for the user
     user = User.query.filter_by(username=username).first()
 
+    # Verify user's password
     if user and bcrypt.check_password_hash(user.password, password):
+        # Create JWT token
         token = create_access_token(identity=username)
         return jsonify({'access_token': token}), 200
     else:
@@ -106,9 +116,11 @@ class Movie(db.Model):
 
     @property
     def average_rating(self):
+        # Search the database for reviews of this movie
         reviews = Review.query.filter_by(movie_id=self.id).all()
         if not reviews:
             return None
+        # Calculate average rating
         total_rating = sum(review.rating for review in reviews)
         return total_rating / len(reviews)
 
@@ -132,13 +144,16 @@ class Review(db.Model):
 @app.route('/movies/<int:movie_id>/reviews', methods=['POST'])
 @jwt_required() 
 def add_review(movie_id):
+    # Get request data
     data = request.get_json()
     if not data:
         return jsonify({'message': 'No input data provided'}), 400
 
     rating = data.get('rating')
     review = data.get('review')
+    # Get user identity from JWT token
     user_identity = get_jwt_identity()
+    # Search the database for the user
     user = User.query.filter_by(username=user_identity).first()
 
     if not user:
@@ -149,6 +164,7 @@ def add_review(movie_id):
 
     new_review = Review(user_id=user.id, movie_id=movie_id, rating=rating, review=review)
     try:
+        # Add new review to the database
         db.session.add(new_review)
         db.session.commit()
     except Exception as e:
@@ -160,6 +176,7 @@ def add_review(movie_id):
 # Route to get reviews for a movie
 @app.route('/movies/<int:movie_id>/reviews', methods=['GET'])
 def get_reviews(movie_id):
+    # Search the database for reviews of the movie
     reviews = Review.query.filter_by(movie_id=movie_id).all()
     result = [
         {
@@ -176,6 +193,7 @@ def get_reviews(movie_id):
 # Route to get all movies
 @app.route('/movies', methods=['GET'])
 def get_movies():
+    # Search the database for all movies
     movies = Movie.query.all()
     result = [
         {
@@ -193,6 +211,7 @@ def get_movies():
 @app.route('/movies', methods=['POST'])
 @admin_required 
 def add_movie():
+    # Get request data
     data = request.get_json()
     if not data:
         return jsonify({'message': 'No input data provided'}), 400
@@ -209,6 +228,7 @@ def add_movie():
     new_movie = Movie(title=title, description=description, release_date=release_date, rating=rating)
 
     try:
+        # Add new movie to the database
         db.session.add(new_movie)
         db.session.commit()
     except Exception as e:
@@ -231,8 +251,7 @@ if __name__ == '__main__':
         db.create_all()
 
         new_user = User(username='john_doe', email='john.doe@example.com', password='password123', role='admin')
-    db.session.add(new_user)
-    db.session.commit()
-
+        db.session.add(new_user)
+        db.session.commit()
 
     app.run(debug=True)
