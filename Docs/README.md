@@ -24,23 +24,23 @@ My Movie Rater webserver API is designed to Address the following problems.
 
 # Trello Workflow Pics
 ### Week One
-[alt text](./Pics-files/Trello%201.png)
-[alt text](./Pics-files/TrelloCodeStructure.png)
-[alt text](./Pics-files/TrelloProjectPlanning.png)
-[alt text](./Pics-files/TrelloDocumentationQs.png)
-[alt text](./Pics-files/Trello%202.png)
-[alt text](./Pics-files/TrelloDocumentationQs1.png)
-[alt text](./Pics-files/TrelloDocumentationQs2.png)
+[](./Pics-files/Trello%201.png)
+[](./Pics-files/TrelloCodeStructure.png)
+[](./Pics-files/TrelloProjectPlanning.png)
+[](./Pics-files/TrelloDocumentationQs.png)
+[](./Pics-files/Trello%202.png)
+[](./Pics-files/TrelloDocumentationQs1.png)
+[](./Pics-files/TrelloDocumentationQs2.png)
 
 ### Week Two
-[alt text](./Pics-files/Trello%20Application%20Code1.png)
-[alt text](./Pics-files/Trello%20Application%20Code2.png)
-[alt text](./Pics-files/Trello%20Application%20Code3.png)
-[alt text](./Pics-files/Trello%20Application%20Code4.png)
-[alt text](./Pics-files/TrelloDocumentationQs3.png)
-[alt text](./Pics-files/Trello%203.png)
-[alt text](./Pics-files/TrelloDocumentationUp1.png)
-[alt text](./Pics-files/CompleteTRello.png)
+[](./Pics-files/Trello%20Application%20Code1.png)
+[](./Pics-files/Trello%20Application%20Code2.png)
+[](./Pics-files/Trello%20Application%20Code3.png)
+[](./Pics-files/Trello%20Application%20Code4.png)
+[](./Pics-files/TrelloDocumentationQs3.png)
+[](./Pics-files/Trello%203.png)
+[](./Pics-files/TrelloDocumentationUp1.png)
+[](./Pics-files/CompleteTRello.png)
 
 
 
