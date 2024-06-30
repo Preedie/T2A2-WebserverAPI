@@ -22,6 +22,28 @@ My Movie Rater webserver API is designed to Address the following problems.
 
 - Solutions: The application will include ways for the user to manage their reviews easily.
 
+# Trello Workflow Pics
+### Week One
+[alt text](./Pics-files/Trello%201.png)
+[alt text](./Pics-files/TrelloCodeStructure.png)
+[alt text](./Pics-files/TrelloProjectPlanning.png)
+[alt text](./Pics-files/TrelloDocumentationQs.png)
+[alt text](./Pics-files/Trello%202.png)
+[alt text](./Pics-files/TrelloDocumentationQs1.png)
+[alt text](./Pics-files/TrelloDocumentationQs2.png)
+
+### Week Two
+[alt text](./Pics-files/Trello%20Application%20Code1.png)
+[alt text](./Pics-files/Trello%20Application%20Code2.png)
+[alt text](./Pics-files/Trello%20Application%20Code3.png)
+[alt text](./Pics-files/Trello%20Application%20Code4.png)
+[alt text](./Pics-files/TrelloDocumentationQs3.png)
+[alt text](./Pics-files/Trello%203.png)
+[alt text](./Pics-files/TrelloDocumentationUp1.png)
+[alt text](./Pics-files/CompleteTRello.png)
+
+
+
 # Movie Rater ERD
 
 - [Movie Rater PDF ERD Diagram](/Docs/Pics-files/WebServerAPI.drawio.pdf)
